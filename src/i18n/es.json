@@ -1,0 +1,107 @@
+{
+  "validation": {
+    "required": "{{property}} es requerido",
+    "isEmail": "{{property}} debe ser una dirección de correo electrónico válida",
+    "isString": "{{property}} debe ser una cadena de texto",
+    "minLength": "{{property}} debe tener al menos {{constraints.0}} caracteres",
+    "maxLength": "{{property}} no debe exceder {{constraints.0}} caracteres",
+    "matches": "{{property}} no coincide con el patrón requerido",
+    "isEnum": "{{property}} debe ser uno de los siguientes valores: {{constraints.0}}",
+    "password": {
+      "pattern": "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial"
+    },
+    "roleName": {
+      "enum": "El nombre del rol debe ser uno de: Admin, Seller, Buyer"
+    },
+    "description": {
+      "minLength": "La descripción debe tener al menos 10 caracteres"
+    },
+    "status": {
+      "enum": "El estado debe ser activo o inactivo"
+    }
+  },
+  "auth": {
+    "login": {
+      "success": "Inicio de sesión exitoso",
+      "error": "Correo electrónico o contraseña inválidos",
+      "unauthorized": "Acceso no autorizado",
+      "invalidEmail": "Dirección de correo electrónico inválida",
+      "invalidCredentials": "Credenciales inválidas",
+      "accountInactive": "La cuenta está inactiva",
+      "googleSignInRequired": "Esta cuenta usa inicio de sesión de Google. Por favor inicia sesión con Google.",
+      "adminEndpointRestricted": "No uses este punto final para el inicio de sesión de administrador",
+      "accessDenied": "Acceso denegado. Solo administradores."
+    },
+    "register": {
+      "success": "Registro exitoso",
+      "error": "Error en el registro",
+      "emailExists": "El correo electrónico ya existe"
+    },
+    "logout": {
+      "success": "Sesión cerrada exitosamente",
+      "loggedOut": "Sesión cerrada exitosamente",
+      "error": "Error al cerrar sesión"
+    },
+    "forgotPassword": {
+      "success": "Enlace de restablecimiento de contraseña enviado a su correo electrónico",
+      "successMessage": "Si existe una cuenta con ese correo electrónico, se ha enviado un enlace de restablecimiento de contraseña.",
+      "error": "Error al enviar el enlace de restablecimiento",
+      "emailNotFound": "Correo electrónico no encontrado"
+    },
+    "resetPassword": {
+      "success": "Contraseña restablecida exitosamente",
+      "successMessage": "La contraseña ha sido restablecida exitosamente",
+      "error": "Error al restablecer la contraseña",
+      "invalidToken": "Token de restablecimiento inválido o expirado"
+    },
+    "refreshToken": {
+      "required": "El token de actualización es requerido",
+      "invalid": "Token de actualización inválido"
+    },
+    "googleSignIn": {
+      "emailRequired": "El correo electrónico es requerido para el inicio de sesión con Google"
+    }
+  },
+  "user": {
+    "notFound": "Usuario no encontrado",
+    "updateSuccess": "Usuario actualizado exitosamente",
+    "updateError": "Error al actualizar el usuario",
+    "deleteSuccess": "Usuario eliminado exitosamente",
+    "deleteError": "Error al eliminar el usuario",
+    "emailExists": "Ya existe un usuario con este correo electrónico",
+    "passwordOrFirebaseRequired": "Se debe proporcionar una contraseña o firebaseUid",
+    "userInactive": "El usuario está inactivo"
+  },
+  "firebase": {
+    "notConfigured": "Firebase no está configurado",
+    "invalidToken": "Token de Firebase inválido",
+    "userNotFound": "Usuario de Firebase no encontrado"
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Por favor, inténtalo de nuevo.",
+    "network": "Error de red. Por favor, verifica tu conexión.",
+    "unauthorized": "No estás autorizado para realizar esta acción.",
+    "notFound": "El recurso solicitado no fue encontrado.",
+    "serverError": "Error del servidor. Por favor, inténtalo más tarde.",
+    "validationFailed": "Error de validación. Por favor, verifica tu entrada.",
+    "duplicateEntry": "{{field}} ya existe",
+    "invalidId": "{{field}} inválido: {{value}}"
+  },
+  "common": {
+    "success": "Éxito"
+  },
+  "email": {
+    "subject": {
+      "forgotPassword": "Solicitud de Restablecimiento de Contraseña",
+      "welcome": "Bienvenido a Mideast Equipment Supply"
+    },
+    "template": {
+      "forgotPassword": {
+        "title": "Restablecer Contraseña",
+        "message": "Haz clic en el enlace a continuación para restablecer tu contraseña:",
+        "button": "Restablecer Contraseña",
+        "expiry": "Este enlace expirará en 1 hora."
+      }
+    }
+  }
+}

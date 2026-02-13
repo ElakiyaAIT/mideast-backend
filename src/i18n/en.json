@@ -1,0 +1,107 @@
+{
+  "validation": {
+    "required": "{{property}} is required",
+    "isEmail": "{{property}} must be a valid email address",
+    "isString": "{{property}} must be a string",
+    "minLength": "{{property}} must be at least {{constraints.0}} characters long",
+    "maxLength": "{{property}} must not exceed {{constraints.0}} characters",
+    "matches": "{{property}} does not match the required pattern",
+    "isEnum": "{{property}} must be one of the following values: {{constraints.0}}",
+    "password": {
+      "pattern": "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+    },
+    "roleName": {
+      "enum": "Role name must be one of: Admin, Seller, Buyer"
+    },
+    "description": {
+      "minLength": "Description must be at least 10 characters long"
+    },
+    "status": {
+      "enum": "Status must be either active or inactive"
+    }
+  },
+  "auth": {
+    "login": {
+      "success": "Login successful",
+      "error": "Invalid email or password",
+      "unauthorized": "Unauthorized access",
+      "invalidEmail": "Invalid email address",
+      "invalidCredentials": "Invalid credentials",
+      "accountInactive": "Account is inactive",
+      "googleSignInRequired": "This account uses Google Sign In. Please sign in with Google.",
+      "adminEndpointRestricted": "Do not use this endpoint for admin login",
+      "accessDenied": "Access denied. Admins only."
+    },
+    "register": {
+      "success": "Registration successful",
+      "error": "Registration failed",
+      "emailExists": "Email already exists"
+    },
+    "logout": {
+      "success": "Logout successful",
+      "loggedOut": "Logged out successfully",
+      "error": "Logout failed"
+    },
+    "forgotPassword": {
+      "success": "Password reset link sent to your email",
+      "successMessage": "If an account with that email exists, a password reset link has been sent.",
+      "error": "Failed to send reset link",
+      "emailNotFound": "Email not found"
+    },
+    "resetPassword": {
+      "success": "Password reset successful",
+      "successMessage": "Password has been reset successfully",
+      "error": "Password reset failed",
+      "invalidToken": "Invalid or expired reset token"
+    },
+    "refreshToken": {
+      "required": "Refresh token is required",
+      "invalid": "Invalid refresh token"
+    },
+    "googleSignIn": {
+      "emailRequired": "Email is required for Google Sign In"
+    }
+  },
+  "user": {
+    "notFound": "User not found",
+    "updateSuccess": "User updated successfully",
+    "updateError": "Failed to update user",
+    "deleteSuccess": "User deleted successfully",
+    "deleteError": "Failed to delete user",
+    "emailExists": "User with this email already exists",
+    "passwordOrFirebaseRequired": "Either password or firebaseUid must be provided",
+    "userInactive": "User is inactive"
+  },
+  "firebase": {
+    "notConfigured": "Firebase is not configured",
+    "invalidToken": "Invalid Firebase token",
+    "userNotFound": "Firebase user not found"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "serverError": "Server error. Please try again later.",
+    "validationFailed": "Validation failed. Please check your input.",
+    "duplicateEntry": "{{field}} already exists",
+    "invalidId": "Invalid {{field}}: {{value}}"
+  },
+  "common": {
+    "success": "Success"
+  },
+  "email": {
+    "subject": {
+      "forgotPassword": "Password Reset Request",
+      "welcome": "Welcome to Mideast Equipment Supply"
+    },
+    "template": {
+      "forgotPassword": {
+        "title": "Password Reset",
+        "message": "Click the link below to reset your password:",
+        "button": "Reset Password",
+        "expiry": "This link will expire in 1 hour."
+      }
+    }
+  }
+}

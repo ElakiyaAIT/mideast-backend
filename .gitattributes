@@ -1,0 +1,74 @@
+# =========================================
+# Global defaults
+# =========================================
+* text=auto eol=lf
+
+# =========================================
+# TypeScript / JavaScript (NestJS)
+# =========================================
+*.ts    text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.cjs   text eol=lf
+
+# =========================================
+# Config & metadata files
+# =========================================
+*.json  text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+*.md    text eol=lf
+*.env   text eol=lf
+*.example text eol=lf
+
+# =========================================
+# Email templates (Hibernate-style)
+# =========================================
+*.hbs   text eol=lf
+*.handlebars text eol=lf
+*.mjml  text eol=lf
+*.html  text eol=lf
+*.txt   text eol=lf
+
+# =========================================
+# Styles inside emails (if any)
+# =========================================
+*.css   text eol=lf
+
+# =========================================
+# Shell / DevOps scripts
+# =========================================
+*.sh    text eol=lf
+Dockerfile text eol=lf
+*.dockerignore text eol=lf
+
+# =========================================
+# Logs & runtime artifacts
+# =========================================
+*.log   text eol=lf
+
+# =========================================
+# Binary files (do not diff)
+# =========================================
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.svg   binary
+*.ico   binary
+*.webp  binary
+
+# =========================================
+# Fonts (email templates / PDFs)
+# =========================================
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+
+# =========================================
+# Build outputs (safety net)
+# =========================================
+dist/**     binary
+build/**   binary
+coverage/** binary
