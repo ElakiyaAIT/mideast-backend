@@ -103,5 +103,12 @@
         "expiry": "Este enlace expirará en 1 hora."
       }
     }
+  },
+  "testimonial": {
+    "notFound": "Testimonio no encontrado",
+    "updateSuccess": "Testimonio actualizado correctamente",
+    "updateError": "Error al actualizar el testimonio",
+    "deleteSuccess": "Testimonio eliminado correctamente",
+    "deleteError": "Error al eliminar el testimonio"
   }
 }

@@ -103,5 +103,12 @@
         "expiry": "This link will expire in 1 hour."
       }
     }
+  },
+  "testimonial":{
+    "notFound": "Testimonial not found",
+    "updateSuccess": "Testimonial updated successfully",
+    "updateError": "Failed to update Testimonial",
+    "deleteSuccess": "Testimonial deleted successfully",
+    "deleteError": "Failed to delete Testimonial"
   }
 }
