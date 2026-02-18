@@ -22,7 +22,10 @@ export class PublicEquipmentController {
     };
     return this.equipmentService.findAll(publicFilters);
   }
-
+@Get('latest')
+  async getLatest() {
+    return this.equipmentService.getLatest();
+  }
   @Get('featured')
   async getFeatured(@Query('limit') limit: number = 3): Promise<Equipment[]> {
     const result = await this.equipmentService.findAll({

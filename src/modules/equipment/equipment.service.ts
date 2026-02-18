@@ -228,4 +228,16 @@ export class EquipmentService {
   async incrementInquiryCount(id: string): Promise<void> {
     await this.equipmentModel.updateOne({ _id: id }, { $inc: { inquiryCount: 1 } });
   }
+
+  async getLatest(): Promise<Equipment[]> {
+    const result = await this.findAll({
+      page: 1,
+      limit: 5,
+      isPublished: true,
+      sortBy: 'createdAt',
+      order: 'desc',
+    });
+    
+    return result.items;
+  }
 }
