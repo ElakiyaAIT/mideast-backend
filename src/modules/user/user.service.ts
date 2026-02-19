@@ -40,9 +40,9 @@ export class UserService {
       }
 
       // Validate: Either password or firebaseUid must be provided
-      if (!createUserDto.password && !createUserDto.firebaseUid) {
-        throw new BadRequestException('Either password or firebaseUid must be provided');
-      }
+      // if (!createUserDto.password && !createUserDto.firebaseUid) {
+      //   throw new BadRequestException('Either password or firebaseUid must be provided');
+      // }
 
       // Hash password only if provided (not required for Firebase users)
       const hashedPassword = createUserDto.password

@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsNotEmpty,
@@ -27,7 +28,11 @@ export class CreateEquipmentCategoryDto {
 
   @IsString()
   @IsOptional()
-  imageUrl?: string;
+  @Transform(({ value }) => {
+  if (value === '') return null; // convert empty string to null
+  return value;
+})
+  imageUrl?: string|null;
 
   @IsObject()
   @IsOptional()

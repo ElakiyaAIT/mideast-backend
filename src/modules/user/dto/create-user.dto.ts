@@ -37,9 +37,6 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsBoolean()
-  @Matches(/^(true|false)$/, {
-    message: 'isActive must be a boolean value (true or false)',
-  })
   isActive: boolean;
 
   @IsNotEmpty()
