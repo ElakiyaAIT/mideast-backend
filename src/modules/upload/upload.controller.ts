@@ -90,4 +90,22 @@ async uploadTestimonialImage(
   return { url: uploadedFile.url };
 }
 
+@Post('banner-image')
+@UseInterceptors(FileInterceptor('image'))
+async UploadBannerImage(
+  @UploadedFile() file: Express.Multer.File,
+): Promise<{ url: string }> {
+  if (!file) {
+    throw new BadRequestException('No file uploaded');
+  }
+
+  const uploadedFile = await this.uploadService.uploadSingleFile(
+    file,
+    'banner',
+  );
+
+  return { url: uploadedFile.url };
+}
+
+
 }

@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsEnum, IsBoolean, IsNumber, IsDate, IsUrl } from 'class-validator';
 import { Type } from 'class-transformer';
-import { BannerPosition } from '../enums/banner-position.enum';
+import { BannerPosition, BannerStatus } from '../enums/banner-position.enum';
 
 export class CreateBannerDto {
   @IsString()
@@ -11,8 +11,11 @@ export class CreateBannerDto {
   subtitle?: string;
 
   @IsString()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   imageUrl: string;
+
+  @IsEnum(BannerStatus)
+  status: BannerStatus;
 
   @IsOptional()
   @IsUrl()

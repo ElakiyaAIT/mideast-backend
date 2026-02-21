@@ -4,3 +4,10 @@ export enum BannerPosition {
   LISTING_TOP = 'listing_top',
   SIDEBAR = 'sidebar',
 }
+
+export enum BannerStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SCHEDULED = 'scheduled',
+  EXPIRED = 'expired',
+}

@@ -11,7 +11,7 @@ export class CreateTestimonialDto {
 
   @IsString()
   @IsOptional()
-  image: string;
+  image: string|null;
 
   @IsString()
   @IsNotEmpty()

@@ -15,6 +15,10 @@ import { Type } from 'class-transformer';
 import { ListingType } from '../enums';
 
 class LocationDto {
+  @IsOptional()
+  @IsMongoId()
+  _id?: string;
+
   @IsString()
   @IsNotEmpty()
   address: string;

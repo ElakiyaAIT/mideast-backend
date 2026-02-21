@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { BannerPosition } from '../enums/banner-position.enum';
+import { BannerPosition, BannerStatus } from '../enums/banner-position.enum';
 
 @Schema({ timestamps: true })
 export class Banner extends Document {
@@ -9,6 +9,13 @@ export class Banner extends Document {
 
   @Prop()
   subtitle: string;
+
+  @Prop({
+    type: String,
+    enum: BannerStatus,
+    required: true,
+  })
+  status: BannerStatus;
 
   @Prop({ required: true })
   imageUrl: string;

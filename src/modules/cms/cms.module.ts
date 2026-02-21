@@ -5,6 +5,7 @@ import { StaticPageService } from './static-page.service';
 import { CmsController } from './cms.controller';
 import { Banner, BannerSchema } from './schemas/banner.schema';
 import { StaticPage, StaticPageSchema } from './schemas/static-page.schema';
+import { PubliCmsController } from './public-cms.controller';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { StaticPage, StaticPageSchema } from './schemas/static-page.schema';
       { name: StaticPage.name, schema: StaticPageSchema },
     ]),
   ],
-  controllers: [CmsController],
+  controllers: [CmsController, PubliCmsController],
   providers: [BannerService, StaticPageService],
   exports: [BannerService, StaticPageService],
 })

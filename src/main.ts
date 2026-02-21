@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from './common/config/config.service';
 import { LoggerService } from './common/logger/logger.service';
 import { GlobalErrorHandler } from './common/handlers/global-error.handler';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor';
 
 async function bootstrap(): Promise<void> {
   try {
@@ -105,7 +106,7 @@ async function bootstrap(): Promise<void> {
 
     process.on('SIGTERM', () => void gracefulShutdown('SIGTERM'));
     process.on('SIGINT', () => void gracefulShutdown('SIGINT'));
-
+    app.useGlobalInterceptors(app.get(AuditInterceptor));
     const port = configService.getPort();
     await app.listen(port);
 
@@ -120,7 +121,7 @@ async function bootstrap(): Promise<void> {
       'Bootstrap',
     );
     logger.log(`Environment: ${configService.getEnv()}`, 'Bootstrap');
-  } catch (error) {
+        } catch (error) {
     console.error('='.repeat(60));
     console.error('✗ Failed to start application');
     console.error('='.repeat(60));
