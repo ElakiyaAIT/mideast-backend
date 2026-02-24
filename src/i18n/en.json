@@ -104,7 +104,7 @@
       }
     }
   },
-  "testimonial":{
+  "testimonial": {
     "notFound": "Testimonial not found",
     "updateSuccess": "Testimonial updated successfully",
     "updateError": "Failed to update Testimonial",

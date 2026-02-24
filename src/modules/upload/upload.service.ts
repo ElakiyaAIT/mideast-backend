@@ -43,7 +43,7 @@ export class UploadService {
   /**
    * Upload a single file to storage
    */
-   async uploadSingleFile(file: Express.Multer.File, folder: string): Promise<UploadedFile> {
+  async uploadSingleFile(file: Express.Multer.File, folder: string): Promise<UploadedFile> {
     try {
       // Validate file
       this.validateFile(file);

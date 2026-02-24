@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { Connection, Model, Types } from 'mongoose';
 import { AuditLog } from './schemas/audit-log.schema';
 import { AuditAction } from './enums/audit-action.enum';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
@@ -10,6 +10,8 @@ export class AuditService {
   constructor(
     @InjectModel(AuditLog.name)
     private auditLogModel: Model<AuditLog>,
+    @InjectConnection()
+    private readonly connection: Connection,
   ) {}
 
   async log(data: {
@@ -64,4 +66,17 @@ export class AuditService {
 
     return new PaginationResultDto<AuditLog>(items, total, page, limit);
   }
+
+  // async getDocumentByTarget(targetType: string, id: string) {
+  //   try {
+  //     const modelName = targetType.charAt(0).toUpperCase() + targetType.slice(1);
+
+  //     const Model = this.connection.model(modelName);
+
+  //     return await Model.findById(id).lean();
+  //   } catch (error) {
+  //     console.warn(`Model not found for targetType: ${targetType}`);
+  //     return null;
+  //   }
+  // }
 }

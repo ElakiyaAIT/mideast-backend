@@ -42,10 +42,7 @@ export class UploadController {
       throw new BadRequestException('No files uploaded');
     }
 
-    const uploadedFiles = await this.uploadService.uploadFiles(
-      files,
-      'equipment-category',
-    );
+    const uploadedFiles = await this.uploadService.uploadFiles(files, 'equipment-category');
 
     const urls = uploadedFiles.map((file) => file.url);
 
@@ -54,58 +51,45 @@ export class UploadController {
 
   //IMAGE UPLOAD IN AUCTION
   @Post('auction-images')
-@UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
-async uploadAuctionImages(
-  @UploadedFiles() files: Express.Multer.File[],
-): Promise<{ urls: string[] }> {
-  if (!files || files.length === 0) {
-    throw new BadRequestException('No files uploaded');
+  @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
+  async uploadAuctionImages(
+    @UploadedFiles() files: Express.Multer.File[],
+  ): Promise<{ urls: string[] }> {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files uploaded');
+    }
+
+    const uploadedFiles = await this.uploadService.uploadFiles(files, 'auction');
+
+    const urls = uploadedFiles.map((file) => file.url);
+
+    return { urls };
   }
 
-  const uploadedFiles = await this.uploadService.uploadFiles(
-    files,
-    'auction',
-  );
+  //TESTIMONIAL IMAGE UPLOAD
+  @Post('testimonial-image')
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadTestimonialImage(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
 
-  const urls = uploadedFiles.map((file) => file.url);
+    const uploadedFile = await this.uploadService.uploadSingleFile(file, 'testimonial');
 
-  return { urls };
-}
-
-//TESTIMONIAL IMAGE UPLOAD
-@Post('testimonial-image')
-@UseInterceptors(FileInterceptor('image'))
-async uploadTestimonialImage(
-  @UploadedFile() file: Express.Multer.File,
-): Promise<{ url: string }> {
-  if (!file) {
-    throw new BadRequestException('No file uploaded');
+    return { url: uploadedFile.url };
   }
 
-  const uploadedFile = await this.uploadService.uploadSingleFile(
-    file,
-    'testimonial',
-  );
+  @Post('banner-image')
+  @UseInterceptors(FileInterceptor('image'))
+  async UploadBannerImage(@UploadedFile() file: Express.Multer.File): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
 
-  return { url: uploadedFile.url };
-}
+    const uploadedFile = await this.uploadService.uploadSingleFile(file, 'banner');
 
-@Post('banner-image')
-@UseInterceptors(FileInterceptor('image'))
-async UploadBannerImage(
-  @UploadedFile() file: Express.Multer.File,
-): Promise<{ url: string }> {
-  if (!file) {
-    throw new BadRequestException('No file uploaded');
+    return { url: uploadedFile.url };
   }
-
-  const uploadedFile = await this.uploadService.uploadSingleFile(
-    file,
-    'banner',
-  );
-
-  return { url: uploadedFile.url };
-}
-
-
 }

@@ -11,13 +11,13 @@ export class Testimonial {
   @Prop({ required: true })
   role: string;
 
- @Prop({ required: false, default: null })
-image?: string;
+  @Prop({ required: false, default: null })
+  image?: string;
 
   @Prop({ required: true })
   review: string;
 
-   @Prop({ default: true })
+  @Prop({ default: true })
   isActive: boolean;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })

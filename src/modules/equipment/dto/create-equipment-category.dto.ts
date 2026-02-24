@@ -29,10 +29,10 @@ export class CreateEquipmentCategoryDto {
   @IsString()
   @IsOptional()
   @Transform(({ value }) => {
-  if (value === '') return null; // convert empty string to null
-  return value;
-})
-  imageUrl?: string|null;
+    if (value === '') return null; // convert empty string to null
+    return value as string;
+  })
+  imageUrl?: string | null;
 
   @IsObject()
   @IsOptional()

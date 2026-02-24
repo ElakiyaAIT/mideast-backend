@@ -12,7 +12,9 @@ import { STORAGE_PROVIDER_TOKEN } from './storage/storage-provider.token';
     StorageProviderFactory,
     {
       provide: STORAGE_PROVIDER_TOKEN,
-      useFactory: async (factory: StorageProviderFactory) => {
+      useFactory: async (
+        factory: StorageProviderFactory,
+      ): Promise<ReturnType<StorageProviderFactory['createStorageProvider']>> => {
         return await factory.createStorageProvider();
       },
       inject: [StorageProviderFactory],

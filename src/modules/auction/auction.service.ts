@@ -211,92 +211,79 @@ export class AuctionService {
   }
 
   // GET LATEST AUCTION
-async findLatest(): Promise<Auction | null> {
-  try {
-    const auction = await this.auctionModel
-      .findOne({ isDeleted: false })
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'firstName lastName')
-      .exec();
+  async findLatest(): Promise<Auction | null> {
+    try {
+      const auction = await this.auctionModel
+        .findOne({ isDeleted: false })
+        .sort({ createdAt: -1 })
+        .populate('createdBy', 'firstName lastName')
+        .exec();
 
-    console.log('🧾 Latest auction:', auction);
+      console.log('🧾 Latest auction:', auction);
 
-    return auction; 
-  } catch (error) {
-    console.error(' Error fetching latest auction:', error);
-    throw error;
-  }
-}
-
-//GET AUCTION BY TYPE(UPCOMING<PAST)
-async findWithFilters(
-  filters: FilterAuctionExtendedDto,
-): Promise<PaginationResultDto<Auction>> {
-  const {
-    page = 1,
-    limit = 20,
-    type,
-    startDate,
-    location,
-    auctionName,
-  } = filters;
-
-  const skip = (page - 1) * limit;
-  const now = new Date();
-
-  const query: Record<string, any> = {
-    isDeleted: false,
-  };
-
-  // Upcoming / Past logic
-  if (type === 'upcoming') {
-    query.startDate = { $gt: now };
+      return auction;
+    } catch (error) {
+      console.error(' Error fetching latest auction:', error);
+      throw error;
+    }
   }
 
-  if (type === 'past') {
-    query.startDate = { $lt: now };
-  }
+  //GET AUCTION BY TYPE(UPCOMING<PAST)
+  async findWithFilters(filters: FilterAuctionExtendedDto): Promise<PaginationResultDto<Auction>> {
+    const { page = 1, limit = 20, type, startDate, location, auctionName } = filters;
 
-  // Optional startDate override / filter
-  if (startDate) {
-    query.startDate = {
-      ...(query.startDate || {}),
-      $gte: new Date(startDate),
+    const skip = (page - 1) * limit;
+    const now = new Date();
+
+    const query: Record<string, unknown> = {
+      isDeleted: false,
     };
+
+    // Upcoming / Past logic
+    if (type === 'upcoming') {
+      query.startDate = { $gt: now };
+    }
+
+    if (type === 'past') {
+      query.startDate = { $lt: now };
+    }
+
+    // Optional startDate override / filter
+    if (startDate) {
+      query.startDate = {
+        ...(query.startDate || {}),
+        $gte: new Date(startDate),
+      };
+    }
+
+    // Optional location filter
+    if (location) {
+      query.$or = [
+        { 'location.address': { $regex: location, $options: 'i' } },
+        { 'location.city': { $regex: location, $options: 'i' } },
+        { 'location.state': { $regex: location, $options: 'i' } },
+        { 'location.zipCode': { $regex: location, $options: 'i' } },
+      ];
+    }
+
+    // Optional auction name filter
+    if (auctionName) {
+      query.title = { $regex: auctionName, $options: 'i' };
+    }
+
+    const sort: Record<string, SortOrder> = type === 'past' ? { startDate: -1 } : { startDate: 1 };
+
+    const [items, total] = await Promise.all([
+      this.auctionModel
+        .find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .populate('createdBy', 'firstName lastName')
+        .exec(),
+      this.auctionModel.countDocuments(query),
+    ]);
+
+    return new PaginationResultDto<Auction>(items, total, page, limit);
   }
-
-  // Optional location filter
-if (location) {
-  query.$or = [
-    { 'location.address': { $regex: location, $options: 'i' } },
-    { 'location.city': { $regex: location, $options: 'i' } },
-    { 'location.state': { $regex: location, $options: 'i' } },
-    { 'location.zipCode': { $regex: location, $options: 'i' } },
-  ];
-}
-
-  // Optional auction name filter
-  if (auctionName) {
-    query.title = { $regex: auctionName, $options: 'i' };
-  }
-
- const sort: Record<string, SortOrder> =
-  type === 'past'
-    ? { startDate: -1 }
-    : { startDate: 1 };
-    
-  const [items, total] = await Promise.all([
-    this.auctionModel
-      .find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .populate('createdBy', 'firstName lastName')
-      .exec(),
-    this.auctionModel.countDocuments(query),
-  ]);
-
-  return new PaginationResultDto<Auction>(items, total, page, limit);
-}
-
 }

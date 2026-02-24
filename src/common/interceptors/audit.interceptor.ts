@@ -1,51 +1,73 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable, tap } from 'rxjs';
+import { Observable, from } from 'rxjs';
+import { mergeMap, tap } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection, Model, Document } from 'mongoose';
 import { AuditService } from '@/modules/audit/audit.service';
 import { AuditAction } from '@/modules/audit/enums/audit-action.enum';
+// import { AUDIT_ENTITY_KEY } from '../decorators/audit-entity.decorator';
+
+interface AuditRequest {
+  method: string;
+  user?: { id?: string };
+  body?: Record<string, unknown>;
+  params?: Record<string, string>;
+  ip?: string;
+  headers?: Record<string, string>;
+  url: string;
+}
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   private readonly skipRoutes = [
     '/auth/login',
     '/auth/admin-login',
-    '/auth/register', // optional if you don't want registration logged
+    '/auth/register',
     '/auth/refresh',
     '/auth/logout',
     '/auth/forgot-password',
     '/auth/reset-password',
     '/auth/google-signin',
-    '/auth/profile', // GET profile
-    '/auth/email-reports', // GET reports
     '/health',
     '/metrics',
     '/public',
     'csrf/token',
     '/admin/upload',
-    '/admin/upload/'
+    '/admin/upload/',
+  ];
+
+  private readonly ignoredFields = [
+    '_id',
+    '__v',
+    'createdAt',
+    'updatedAt',
+    'createdBy',
+    'updatedBy',
+    'sellerId',
   ];
 
   constructor(
     private readonly auditService: AuditService,
     private readonly reflector: Reflector,
+    @InjectConnection() private readonly connection: Connection,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const ctx = context.switchToHttp();
-    const request = ctx.getRequest();
-    const { method, user, body, ip, headers, params } = request;
+    const request = ctx.getRequest<AuditRequest>();
 
-    // Skip certain routes
-    const url = request.url;
+    const { method, user, body = {}, ip = '', headers = {}, params = {}, url } = request;
+
     const apiPrefix = '/api/v1';
     const pathToCheck = url.startsWith(apiPrefix) ? url.slice(apiPrefix.length) : url;
 
     if (this.skipRoutes.some((path) => pathToCheck.startsWith(path))) {
-      console.log('Skipping route', url);
       return next.handle();
     }
-    // Only log create/update/delete actions
+
     let action: AuditAction;
+
     switch (method) {
       case 'POST':
         action = AuditAction.CREATE;
@@ -58,54 +80,180 @@ export class AuditInterceptor implements NestInterceptor {
         action = AuditAction.DELETE;
         break;
       default:
-        return next.handle(); // skip GET/OPTIONS/etc.
+        return next.handle();
     }
 
-    return next.handle().pipe(
-      tap(async (result) => {
-        try {
-          // Use @AuditTarget decorator metadata if present
-          const targetTypeFromDecorator = this.reflector.get<string>(
-            'auditTarget',
-            context.getHandler(),
-          );
+    // ===== Entity Detection =====
+    let entityName: string;
 
-          // Extract targetType from URL: second-to-last segment (REST style /resource/:id)
-          const segments = url.split('/').filter(Boolean); // remove empty strings
-          const targetType = targetTypeFromDecorator || segments[segments.length - 2] || 'Unknown';
+    // Map common route prefixes to entity names
+    const routeEntityMap: Record<string, string> = {
+      '/banners': 'Banner',
+      '/pages': 'StaticPage',
+      '/auth/profile': 'User',
+    };
 
-          // Extract targetId
-          const targetId = result?._id || result?.id || body?.id || params?.id || null;
+    // Find the first matching route in the map
+    const matchedRoute = Object.keys(routeEntityMap).find((prefix) => pathToCheck.includes(prefix));
+    entityName = matchedRoute
+      ? routeEntityMap[matchedRoute]
+      : context.getClass().name.replace('Controller', '');
+    entityName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
 
-          if (!targetId) {
-            console.warn('AuditInterceptor: targetId not found for', method, url);
-          }
+    const model = Object.values(this.connection.models).find(
+      (m) => m.modelName.toLowerCase() === entityName.toLowerCase(),
+    ) as Model<Document & Record<string, unknown>> | undefined;
 
-          // Log the audit action
-          await this.auditService.log({
-            adminId: user?.id,
-            action,
-            targetType: targetType.charAt(0).toUpperCase() + targetType.slice(1),
-            targetId,
-            description: `${action} ${targetType}`,
-            changes: body,
-            ipAddress: ip,
-            userAgent: headers['user-agent'],
-          });
+    let oldDoc: Record<string, unknown> | null = null;
+    let targetId: string | undefined;
 
-          // Debug log (only for logged actions)
-          console.log('AuditInterceptor triggered:', {
-            method,
-            url,
-            userId: user?.id,
-            action,
-            targetType,
-            targetId,
-          });
-        } catch (err) {
-          console.error('AuditInterceptor failed to log action', err);
+    const fetchOldDoc = async (): Promise<void> => {
+      if (action === AuditAction.UPDATE && model) {
+        if ('slug' in params) {
+          oldDoc = await model.findOne({ slug: params.slug }).lean().exec();
+          targetId = oldDoc?._id?.toString();
+        } else if (params.id) {
+          targetId = params.id;
+          oldDoc = await model.findById(targetId).lean().exec();
+        } else if (body.id) {
+          targetId = body.id as string;
+          oldDoc = await model.findById(targetId).lean().exec();
         }
-      }),
+      }
+    };
+
+    return from(fetchOldDoc()).pipe(
+      mergeMap(() =>
+        next.handle().pipe(
+          tap((result: unknown) => {
+            let descriptionText = '';
+            const changes: Record<string, { old: unknown; new: unknown }> = {};
+
+            if (action === AuditAction.UPDATE && oldDoc) {
+              for (const key of Object.keys(body)) {
+                if (this.ignoredFields.includes(key)) continue;
+
+                if (!this.deepEqualNormalized(oldDoc[key], body[key])) {
+                  changes[key] = {
+                    old: oldDoc[key],
+                    new: body[key],
+                  };
+                }
+              }
+
+              // const changedKeys = Object.keys(changes);
+
+              const changedKeys = Object.keys(changes);
+
+              if (changedKeys.length === 0) {
+                descriptionText = `Updated ${entityName}`;
+              } else {
+                descriptionText = changedKeys
+                  .map((key) => {
+                    const oldValue = changes[key].old;
+                    const newValue = changes[key].new;
+
+                    // Special case for image
+                    if (key === 'image' || key === 'images') {
+                      if (oldValue && !newValue) return 'image removed';
+                      if (!oldValue && newValue) return 'image added';
+                      return 'image updated';
+                    }
+
+                    // Default behavior
+                    return `${key} updated from '${this.formatValue(
+                      oldValue,
+                    )}' to '${this.formatValue(newValue)}'`;
+                  })
+                  .join(', ');
+              }
+            }
+
+            if (action === AuditAction.CREATE) {
+              descriptionText = `Created new ${entityName}`;
+            }
+
+            if (action === AuditAction.DELETE) {
+              descriptionText = `Deleted ${entityName}`;
+            }
+            const record = result as { _id?: { toString(): string } | string; id?: string };
+
+            void this.auditService.log({
+              adminId: user?.id ?? '',
+              action,
+              targetType: entityName,
+              targetId:
+                targetId ||
+                (typeof record?._id === 'string' ? record._id : record?._id?.toString()) ||
+                record?.id ||
+                '',
+              description: `${action} ${entityName} - ${descriptionText}`,
+              changes,
+              ipAddress: ip,
+              userAgent: headers['user-agent'],
+            });
+
+            // return result;
+          }),
+        ),
+      ),
     );
+  }
+
+  private deepEqualNormalized(a: unknown, b: unknown): boolean {
+    if (a == null && b == null) return true;
+
+    let normA: unknown = a;
+    let normB: unknown = b;
+
+    if (
+      normA &&
+      typeof normA !== 'string' &&
+      typeof (normA as { toString(): string }).toString === 'function'
+    ) {
+      normA = (normA as { toString(): string }).toString();
+    }
+
+    if (
+      normB &&
+      typeof normB !== 'string' &&
+      typeof (normB as { toString(): string }).toString === 'function'
+    ) {
+      normB = (normB as { toString(): string }).toString();
+    }
+
+    if (normA instanceof Date) normA = normA.getTime();
+    if (normB instanceof Date) normB = normB.getTime();
+
+    if (typeof normA === 'string' && !isNaN(Date.parse(normA))) {
+      normA = new Date(normA).getTime();
+    }
+
+    if (typeof normB === 'string' && !isNaN(Date.parse(normB))) {
+      normB = new Date(normB).getTime();
+    }
+
+    return JSON.stringify(normA) === JSON.stringify(normB);
+  }
+
+  private formatValue(value: unknown): string {
+    if (value instanceof Date) {
+      return value.toISOString();
+    }
+
+    if (this.isMongoDate(value)) {
+      return new Date(value.$date).toISOString();
+    }
+
+    return String(value);
+  }
+
+  private isMongoDate(value: unknown): value is { $date: string } {
+    if (typeof value === 'object' && value !== null && '$date' in value) {
+      const dateValue = (value as Record<string, unknown>)['$date'];
+      return typeof dateValue === 'string';
+    }
+
+    return false;
   }
 }

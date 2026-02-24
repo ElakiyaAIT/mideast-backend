@@ -20,7 +20,7 @@ export class StorageProviderFactory {
    */
   async createStorageProvider(): Promise<IStorageProvider> {
     const storageConfig = this.configService.getStorageConfig();
-    const providerType = storageConfig.provider;
+    const providerType = storageConfig.provider as StorageProviderType;
 
     this.logger.log(`Creating storage provider: ${providerType}`);
 

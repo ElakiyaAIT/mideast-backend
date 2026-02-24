@@ -16,7 +16,12 @@ import { PublicEquipmentCategoryController } from './public-equipment-category.c
       { name: EquipmentCategory.name, schema: EquipmentCategorySchema },
     ]),
   ],
-  controllers: [EquipmentController, PublicEquipmentController, EquipmentCategoryController,PublicEquipmentCategoryController],
+  controllers: [
+    EquipmentController,
+    PublicEquipmentController,
+    EquipmentCategoryController,
+    PublicEquipmentCategoryController,
+  ],
   providers: [EquipmentService, EquipmentCategoryService],
   exports: [EquipmentService, EquipmentCategoryService],
 })

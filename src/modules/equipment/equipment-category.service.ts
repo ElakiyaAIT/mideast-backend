@@ -134,6 +134,4 @@ export class EquipmentCategoryService {
 
     return category.save();
   }
-  
 }
-

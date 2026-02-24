@@ -13,64 +13,50 @@ export class TestimonialsService {
     private testimonialModel: Model<TestimonialDocument>,
   ) {}
 
-  async create(dto: CreateTestimonialDto) {
+  async create(dto: CreateTestimonialDto): Promise<Testimonial> {
     return this.testimonialModel.create(dto);
   }
 
   async findAll(filters: {
-  page?: number;
-  limit?: number;
-  isActive?: boolean;
-}): Promise<PaginationResultDto<Testimonial>> {
-  const { page = 1, limit = 20, isActive } = filters;
+    page?: number;
+    limit?: number;
+    isActive?: boolean;
+  }): Promise<PaginationResultDto<Testimonial>> {
+    const { page = 1, limit = 20, isActive } = filters;
 
-  const skip = (page - 1) * limit;
+    const skip = (page - 1) * limit;
 
-  const query: Record<string, unknown> = {};
+    const query: Record<string, unknown> = {};
 
-  // Optional filter for public/admin usage
-  if (isActive !== undefined) {
-    query.isActive = isActive;
+    // Optional filter for public/admin usage
+    if (isActive !== undefined) {
+      query.isActive = isActive;
+    }
+
+    const [items, total] = await Promise.all([
+      this.testimonialModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.testimonialModel.countDocuments(query),
+    ]);
+
+    return new PaginationResultDto<Testimonial>(items, total, page, limit);
   }
 
-  const [items, total] = await Promise.all([
-    this.testimonialModel
-      .find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec(),
-    this.testimonialModel.countDocuments(query),
-  ]);
-
-  return new PaginationResultDto<Testimonial>(
-    items,
-    total,
-    page,
-    limit,
-  );
-}
-
-  async findOne(id: string) {
+  async findOne(id: string): Promise<TestimonialDocument> {
     const testimonial = await this.testimonialModel.findById(id);
     if (!testimonial) throw new NotFoundException('Testimonial not found');
     return testimonial;
   }
 
-  async update(id: string, dto: UpdateTestimonialDto) {
-    const updated = await this.testimonialModel.findByIdAndUpdate(
-      id,
-      dto,
-      { new: true },
-    );
+  async update(id: string, dto: UpdateTestimonialDto): Promise<TestimonialDocument> {
+    const updated = await this.testimonialModel.findByIdAndUpdate(id, dto, { new: true });
 
     if (!updated) throw new NotFoundException('Testimonial not found');
     return updated;
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<{ message: string }> {
     const deleted = await this.testimonialModel.findByIdAndDelete(id);
     if (!deleted) throw new NotFoundException('Testimonial not found');
     return { message: 'Deleted successfully' };
   }
-}                                                       
+}

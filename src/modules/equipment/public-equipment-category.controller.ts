@@ -6,9 +6,7 @@ import { PaginationResultDto } from '@/common/dto/pagination.dto';
 
 @Controller('equipment-categories')
 export class PublicEquipmentCategoryController {
-  constructor(
-    private readonly categoryService: EquipmentCategoryService,
-  ) {}
+  constructor(private readonly categoryService: EquipmentCategoryService) {}
 
   /**
    * Get all equipment categories (PUBLIC)

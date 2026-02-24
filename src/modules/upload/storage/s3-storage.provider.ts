@@ -5,6 +5,7 @@ import {
   DeleteObjectCommand,
   DeleteObjectsCommand,
   type PutObjectCommandInput,
+  HeadBucketCommand,
 } from '@aws-sdk/client-s3';
 import { randomUUID } from 'crypto';
 import type { IStorageProvider, S3StorageConfig } from './storage-provider.interface';
@@ -30,10 +31,11 @@ export class S3StorageProvider implements IStorageProvider {
         forcePathStyle: this.config.forcePathStyle ?? false,
       });
 
+      if (this.config.validateOnStartup) {
+        await this.s3Client.send(new HeadBucketCommand({ Bucket: this.config.bucket }));
+      }
       this.isInitialized = true;
-      this.logger.log(
-        `S3 storage initialized successfully for bucket: ${this.config.bucket}`,
-      );
+      this.logger.log(`S3 storage initialized successfully for bucket: ${this.config.bucket}`);
     } catch (error) {
       this.logger.error('Failed to initialize S3 storage', error);
       throw error;

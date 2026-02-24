@@ -25,7 +25,7 @@ export class EquipmentService {
   async create(createDto: CreateEquipmentDto): Promise<Equipment> {
     const equipment = new this.equipmentModel({
       ...createDto,
-      status: EquipmentStatus.DRAFT,
+      status: EquipmentStatus.PENDING_APPROVAL,
       createdBy: createDto.sellerId,
     });
 
@@ -150,9 +150,9 @@ export class EquipmentService {
 
     if (approveDto.isPublished !== undefined) {
       equipment.isPublished = approveDto.isPublished;
-      if (approveDto.isPublished) {
-        equipment.status = EquipmentStatus.ACTIVE;
-      }
+      // if (approveDto.isPublished) {
+      //   equipment.status = EquipmentStatus.ACTIVE;
+      // }
     }
 
     if (approveDto.isFeatured !== undefined) {
@@ -232,12 +232,12 @@ export class EquipmentService {
   async getLatest(): Promise<Equipment[]> {
     const result = await this.findAll({
       page: 1,
-      limit: 5,
+      limit: 3,
       isPublished: true,
       sortBy: 'createdAt',
       order: 'desc',
     });
-    
+
     return result.items;
   }
 }

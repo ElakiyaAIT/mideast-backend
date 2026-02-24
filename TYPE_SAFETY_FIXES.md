@@ -7,14 +7,17 @@ This document details the production-grade fixes applied to resolve TypeScript c
 ## Problem Statement
 
 ### Original Error
+
 ```
 'IStorageProvider' only refers to a type, but is being used as a value here.
 ```
 
 ### Root Cause
+
 TypeScript interfaces are erased at runtime (type erasure). They exist only during compilation and cannot be used as runtime values in dependency injection. NestJS requires actual runtime values (strings, symbols, or classes) as provider tokens.
 
 ### Affected Files
+
 - `src/modules/upload/upload.module.ts` - Used interface as provider token
 - `src/modules/upload/upload.service.ts` - Injected using interface type
 
@@ -29,12 +32,14 @@ export const STORAGE_PROVIDER_TOKEN = Symbol('STORAGE_PROVIDER');
 ```
 
 **Why Symbol?**
+
 - **Uniqueness**: Symbols are guaranteed unique, preventing token collisions
 - **Type Safety**: Can be strongly typed in TypeScript
 - **Performance**: No string comparison overhead
 - **Best Practice**: Recommended by NestJS for custom providers
 
 **Alternative Approaches (Not Used):**
+
 - ❌ String token (`'STORAGE_PROVIDER'`) - Risk of naming collisions
 - ❌ Abstract class - Unnecessary complexity for this use case
 - ✅ Symbol - Perfect balance of safety and simplicity
@@ -42,6 +47,7 @@ export const STORAGE_PROVIDER_TOKEN = Symbol('STORAGE_PROVIDER');
 ### 2. Updated Module Provider (`upload.module.ts`)
 
 **Before:**
+
 ```typescript
 import { IStorageProvider } from './storage/storage-provider.interface';
 
@@ -53,10 +59,11 @@ providers: [
     },
     inject: [StorageProviderFactory],
   },
-]
+];
 ```
 
 **After:**
+
 ```typescript
 import { STORAGE_PROVIDER_TOKEN } from './storage/storage-provider.token';
 
@@ -68,12 +75,13 @@ providers: [
     },
     inject: [StorageProviderFactory],
   },
-]
+];
 ```
 
 ### 3. Updated Service Injection (`upload.service.ts`)
 
 **Before:**
+
 ```typescript
 constructor(private readonly storageProvider: IStorageProvider) {
   // ❌ Implicit injection using interface type
@@ -81,6 +89,7 @@ constructor(private readonly storageProvider: IStorageProvider) {
 ```
 
 **After:**
+
 ```typescript
 import { Inject } from '@nestjs/common';
 import { STORAGE_PROVIDER_TOKEN } from './storage/storage-provider.token';
@@ -105,6 +114,7 @@ export { STORAGE_PROVIDER_TOKEN } from './storage-provider.token';
 ```
 
 This allows importing both the interface and token from a single file:
+
 ```typescript
 import { IStorageProvider, STORAGE_PROVIDER_TOKEN } from './storage/storage-provider.interface';
 ```
@@ -112,12 +122,14 @@ import { IStorageProvider, STORAGE_PROVIDER_TOKEN } from './storage/storage-prov
 ## NestJS Dependency Injection Best Practices
 
 ### ✅ DO: Use Proper Injection Tokens
+
 - Symbols for custom providers
 - String constants for well-known providers
 - Classes for class-based providers
 - InjectionToken for shared tokens
 
 ### ❌ DON'T: Use These as Provider Tokens
+
 - Interfaces (type-only constructs)
 - Type aliases (type-only constructs)
 - Generic types (type-only constructs)
@@ -154,7 +166,7 @@ providers: [
 
 // 5. Inject using token
 constructor(
-  @Inject(STORAGE_PROVIDER_TOKEN) 
+  @Inject(STORAGE_PROVIDER_TOKEN)
   private readonly storage: IStorageProvider
 ) {}
 ```
@@ -164,6 +176,7 @@ constructor(
 The storage provider architecture remains **fully pluggable** and **future-proof**:
 
 ### Current Implementation
+
 - ✅ Disk storage (local filesystem)
 - ✅ S3 storage (AWS S3 and compatible services)
 - ✅ Factory pattern for dynamic provider selection
@@ -177,7 +190,7 @@ export class GCSStorageProvider implements IStorageProvider {
   async uploadFile(file: Express.Multer.File, folder: string): Promise<UploadedFile> {
     // GCS implementation
   }
-  
+
   async deleteFile(fileUrl: string): Promise<void> {
     // GCS implementation
   }
@@ -199,6 +212,7 @@ switch (providerType) {
 ## Type Safety Verification
 
 ### ✅ Type Safety Checklist
+
 - [x] No `any` types in production code
 - [x] Strict null checks enabled
 - [x] No implicit any
@@ -209,6 +223,7 @@ switch (providerType) {
 - [x] All providers have explicit types
 
 ### Compilation Results
+
 ```bash
 $ yarn build
 ✓ Build completed successfully
@@ -230,6 +245,7 @@ $ yarn build
 ## Breaking Changes
 
 **None.** This is a transparent refactoring:
+
 - ✅ API contracts unchanged
 - ✅ Functionality unchanged
 - ✅ File upload flow unchanged
@@ -240,6 +256,7 @@ $ yarn build
 ## Testing Recommendations
 
 ### Unit Tests
+
 ```typescript
 describe('UploadService', () => {
   let service: UploadService;
@@ -272,31 +289,37 @@ describe('UploadService', () => {
 ```
 
 ### Integration Tests
+
 No changes required - the service behavior is identical.
 
 ## Benefits of This Approach
 
 ### 1. **Type Safety**
+
 - Compile-time interface checking
 - Runtime token resolution
 - No type erasure issues
 
 ### 2. **Maintainability**
+
 - Clear separation of concerns
 - Self-documenting code
 - Easy to understand and modify
 
 ### 3. **Scalability**
+
 - Easy to add new storage providers
 - No coupling to specific implementations
 - Factory pattern for dynamic selection
 
 ### 4. **Testability**
+
 - Easy to mock providers
 - Clear dependency boundaries
 - Isolated unit testing
 
 ### 5. **Production Ready**
+
 - No hacks or workarounds
 - Follows NestJS best practices
 - Industry-standard patterns
@@ -310,6 +333,7 @@ No changes required - the service behavior is identical.
 ## Conclusion
 
 The implemented solution resolves all TypeScript compilation errors while maintaining:
+
 - ✅ Type safety
 - ✅ Pluggable architecture
 - ✅ NestJS best practices

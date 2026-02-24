@@ -22,8 +22,8 @@ export class PublicEquipmentController {
     };
     return this.equipmentService.findAll(publicFilters);
   }
-@Get('latest')
-  async getLatest() {
+  @Get('latest')
+  async getLatest(): Promise<Equipment[]> {
     return this.equipmentService.getLatest();
   }
   @Get('featured')

@@ -15,7 +15,7 @@ import { PublicAuctionController } from './public-auction.controller';
       { name: Equipment.name, schema: EquipmentSchema },
     ]),
   ],
-  controllers: [AuctionController,PublicAuctionController],
+  controllers: [AuctionController, PublicAuctionController],
   providers: [AuctionService],
   exports: [AuctionService],
 })

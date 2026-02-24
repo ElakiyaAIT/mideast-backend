@@ -76,6 +76,4 @@ export class AuctionController {
   remove(@Param('id') id: string): Promise<Auction> {
     return this.auctionService.remove(id);
   }
-
 }
-

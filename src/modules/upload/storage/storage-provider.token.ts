@@ -1,10 +1,10 @@
 /**
  * Injection token for IStorageProvider
- * 
+ *
  * This token is used for dependency injection of storage providers.
  * We cannot use the IStorageProvider interface directly as a token because
  * TypeScript interfaces are erased at runtime and don't exist in JavaScript.
- * 
+ *
  * @example
  * // In a module:
  * providers: [
@@ -16,7 +16,7 @@
  *     inject: [StorageProviderFactory],
  *   },
  * ]
- * 
+ *
  * // In a service:
  * constructor(
  *   @Inject(STORAGE_PROVIDER_TOKEN) private readonly storageProvider: IStorageProvider

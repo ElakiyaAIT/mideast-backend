@@ -24,36 +24,31 @@ export class TestimonialsController {
 
   //PROTECTED - GET
   @Get()
-findAll(@Query() filters: {
-  page?: number;
-  limit?: number;
-  isActive?: boolean;
-}): Promise<PaginationResultDto<Testimonial>> {
-  return this.testimonialsService.findAll(filters);
-}
+  findAll(
+    @Query() filters: { page?: number; limit?: number; isActive?: boolean },
+  ): Promise<PaginationResultDto<Testimonial>> {
+    return this.testimonialsService.findAll(filters);
+  }
 
-@Get(':id')
-findOne(@Param('id') id:string){
+  @Get(':id')
+  findOne(@Param('id') id: string): Promise<Testimonial> {
     return this.testimonialsService.findOne(id);
-}
+  }
   //  PROTECTED - Create
   @Post()
-  create(@Body() dto: CreateTestimonialDto) {
+  create(@Body() dto: CreateTestimonialDto): Promise<Testimonial> {
     return this.testimonialsService.create(dto);
   }
 
   // PROTECTED - Update
   @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() dto: UpdateTestimonialDto,
-  ) {
+  update(@Param('id') id: string, @Body() dto: UpdateTestimonialDto): Promise<Testimonial> {
     return this.testimonialsService.update(id, dto);
   }
 
   //  PROTECTED - Delete
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<{ message: string }> {
     return this.testimonialsService.remove(id);
   }
 }

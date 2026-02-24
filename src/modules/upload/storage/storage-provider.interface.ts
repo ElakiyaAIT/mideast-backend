@@ -70,6 +70,7 @@ export interface S3StorageConfig {
   secretAccessKey: string;
   endpoint?: string; // Optional custom endpoint (for S3-compatible services)
   forcePathStyle?: boolean; // For S3-compatible services
+  validateOnStartup?: boolean;
 }
 
 /**

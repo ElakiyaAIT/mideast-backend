@@ -20,7 +20,7 @@ export class DiskStorageProvider implements IStorageProvider {
   uploadFile(file: Express.Multer.File): Promise<UploadedFile> {
     // Implementation
   }
-  
+
   deleteFile(fileUrl: string): Promise<void> {
     // Implementation
   }
@@ -42,7 +42,7 @@ export class UploadModule {}
 export class UploadService {
   constructor(
     @Inject(STORAGE_PROVIDER_TOKEN) // ✓ Use @Inject with token
-    private readonly storage: IStorageProvider // ✓ Type with interface
+    private readonly storage: IStorageProvider, // ✓ Type with interface
   ) {}
 }
 ```
@@ -65,7 +65,7 @@ export class UploadModule {}
 @Injectable()
 export class UploadService {
   constructor(
-    private readonly storage: IStorageProvider // ❌ ERROR: Can't resolve
+    private readonly storage: IStorageProvider, // ❌ ERROR: Can't resolve
   ) {}
 }
 ```
@@ -73,6 +73,7 @@ export class UploadService {
 ## When to Use Each Pattern
 
 ### Use Symbol Token (Recommended for Custom Providers)
+
 ```typescript
 export const MY_PROVIDER_TOKEN = Symbol('MY_PROVIDER');
 
@@ -87,11 +88,13 @@ export const MY_PROVIDER_TOKEN = Symbol('MY_PROVIDER');
 ```
 
 **Best for:**
+
 - Custom providers with interface contracts
 - Pluggable architectures
 - Provider swapping (testing/production)
 
 ### Use String Token (For Simple Cases)
+
 ```typescript
 @Module({
   providers: [
@@ -104,11 +107,13 @@ export const MY_PROVIDER_TOKEN = Symbol('MY_PROVIDER');
 ```
 
 **Best for:**
+
 - Simple value providers
 - Configuration objects
 - One-off providers
 
 ### Use Class Token (For Class-Based DI)
+
 ```typescript
 @Injectable()
 export class DatabaseService {
@@ -121,6 +126,7 @@ export class DatabaseService {
 ```
 
 **Best for:**
+
 - Concrete classes (not interfaces)
 - No need for abstraction
 - Simple class-to-class dependencies
@@ -152,7 +158,7 @@ export class DatabaseModule {}
 export class UserService {
   constructor(
     @Inject(DATABASE_CONNECTION)
-    private readonly db: Connection
+    private readonly db: Connection,
   ) {}
 }
 ```
@@ -229,20 +235,24 @@ describe('UploadService', () => {
 ## Troubleshooting
 
 ### Error: "Cannot resolve dependency"
+
 **Cause:** Token not registered in module
 **Fix:** Add provider with token to module's `providers` array
 
 ### Error: "Type X only refers to a type"
+
 **Cause:** Using interface/type as provider token
 **Fix:** Create Symbol or string token, use with `@Inject()`
 
 ### Error: "Circular dependency"
+
 **Cause:** Two services depend on each other
 **Fix:** Use `forwardRef()` or refactor to remove circular dependency
 
 ## Best Practices
 
 ### ✅ DO
+
 - Use Symbol tokens for custom providers
 - Use `@Inject()` decorator explicitly
 - Type parameters with interfaces
@@ -250,6 +260,7 @@ describe('UploadService', () => {
 - Export tokens from interface files
 
 ### ❌ DON'T
+
 - Use interfaces as provider tokens
 - Use implicit injection without tokens
 - Use `any` type
@@ -273,15 +284,21 @@ export interface IStorageProvider {
 export const STORAGE_PROVIDER_TOKEN = Symbol('STORAGE_PROVIDER');
 
 // 3. Multiple implementations
-export class DiskStorageProvider implements IStorageProvider { /* ... */ }
-export class S3StorageProvider implements IStorageProvider { /* ... */ }
+export class DiskStorageProvider implements IStorageProvider {
+  /* ... */
+}
+export class S3StorageProvider implements IStorageProvider {
+  /* ... */
+}
 
 // 4. Factory selects implementation
 export class StorageProviderFactory {
   async createStorageProvider(): Promise<IStorageProvider> {
     switch (config.provider) {
-      case 'disk': return new DiskStorageProvider(config.disk);
-      case 's3': return new S3StorageProvider(config.s3);
+      case 'disk':
+        return new DiskStorageProvider(config.disk);
+      case 's3':
+        return new S3StorageProvider(config.s3);
     }
   }
 }
@@ -306,12 +323,13 @@ export class UploadModule {}
 export class UploadService {
   constructor(
     @Inject(STORAGE_PROVIDER_TOKEN)
-    private readonly storage: IStorageProvider
+    private readonly storage: IStorageProvider,
   ) {}
 }
 ```
 
 **Benefits:**
+
 - ✅ Type-safe at compile time
 - ✅ Flexible at runtime
 - ✅ Easy to test
@@ -320,15 +338,15 @@ export class UploadService {
 
 ## Summary
 
-| Scenario | Token Type | Example |
-|----------|-----------|---------|
-| Custom provider with interface | Symbol | `Symbol('STORAGE_PROVIDER')` |
-| Simple value/config | String | `'API_KEY'` or constant |
-| Concrete class | Class | `DatabaseService` |
-| Framework providers | Constant | `APP_GUARD`, `APP_FILTER` |
+| Scenario                       | Token Type | Example                      |
+| ------------------------------ | ---------- | ---------------------------- |
+| Custom provider with interface | Symbol     | `Symbol('STORAGE_PROVIDER')` |
+| Simple value/config            | String     | `'API_KEY'` or constant      |
+| Concrete class                 | Class      | `DatabaseService`            |
+| Framework providers            | Constant   | `APP_GUARD`, `APP_FILTER`    |
 
 **Key Takeaway:** Interfaces are for compile-time type checking. Symbols/strings/classes are for runtime dependency injection. Use both together for type-safe, flexible DI.
 
 ---
 
-*For more information, see: `TYPE_SAFETY_FIXES.md`*
+_For more information, see: `TYPE_SAFETY_FIXES.md`_

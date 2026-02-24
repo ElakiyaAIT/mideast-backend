@@ -8,6 +8,7 @@ import { ConfigService } from './common/config/config.service';
 import { LoggerService } from './common/logger/logger.service';
 import { GlobalErrorHandler } from './common/handlers/global-error.handler';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor';
+import { Response } from 'express';
 
 async function bootstrap(): Promise<void> {
   try {
@@ -29,7 +30,7 @@ async function bootstrap(): Promise<void> {
       const uploadsPath = join(process.cwd(), storageConfig.disk.uploadPath);
       app.useStaticAssets(uploadsPath, {
         prefix: '/uploads/',
-        setHeaders: (res) => {
+        setHeaders: (res: Response) => {
           res.set('Cross-Origin-Resource-Policy', 'cross-origin');
         },
       });
@@ -121,7 +122,7 @@ async function bootstrap(): Promise<void> {
       'Bootstrap',
     );
     logger.log(`Environment: ${configService.getEnv()}`, 'Bootstrap');
-        } catch (error) {
+  } catch (error) {
     console.error('='.repeat(60));
     console.error('✗ Failed to start application');
     console.error('='.repeat(60));
