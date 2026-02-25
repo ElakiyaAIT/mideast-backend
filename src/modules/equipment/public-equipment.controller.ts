@@ -56,4 +56,15 @@ export class PublicEquipmentController {
 
     return equipment;
   }
+  @Get(':id/related')
+async getRelated(
+  @Param('id') id: string,
+  @Query('page') page: string = '1',  // page number from query string
+  @Query('limit') limit: string = '3', // optional, default 3
+) {
+  const pageNumber = parseInt(page, 10);
+  const limitNumber = parseInt(limit, 10);
+
+  return this.equipmentService.getRelatedByCategory(id, pageNumber, limitNumber);
+}
 }

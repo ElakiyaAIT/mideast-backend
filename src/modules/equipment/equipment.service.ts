@@ -240,4 +240,37 @@ export class EquipmentService {
 
     return result.items;
   }
+
+  async getRelatedByCategory(
+  id: string,
+  page: number = 1,
+  limit: number = 3,
+): Promise<PaginationResultDto<Equipment>> {
+  //  Get the current equipment
+ const equipment = await this.findOne(id);
+const categoryId = equipment.categoryId?._id || equipment.categoryId;
+
+const query: Record<string, unknown> = {
+  categoryId: categoryId.toString(), // use the raw ObjectId
+  _id: { $ne: new Types.ObjectId(id) }, // ensure proper ObjectId comparison, remove current equipment
+  isDeleted: false,
+  isPublished: true,
+};
+
+const skip = (page - 1) * limit;
+
+const [items, total] = await Promise.all([
+  this.equipmentModel
+    .find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 })
+    .populate('categoryId', 'name slug')
+    .populate('sellerId', 'firstName lastName email')
+    .exec(),
+  this.equipmentModel.countDocuments(query),
+]);
+
+return new PaginationResultDto<Equipment>(items, total, page, limit);
+}
 }
