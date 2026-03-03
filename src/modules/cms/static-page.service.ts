@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 import { StaticPage } from './schemas/static-page.schema';
 import { CreateStaticPageDto } from './dto/create-static-page.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
+import { PaginationResultDto } from '@/common/dto/pagination.dto';
 
 @Injectable()
 export class StaticPageService {
@@ -17,8 +18,19 @@ export class StaticPageService {
     return page.save();
   }
 
-  async findAll(): Promise<StaticPage[]> {
-    return this.staticPageModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(filters: {
+    page?: number;
+    limit?: number;
+    isPublished?: boolean;
+  }): Promise<PaginationResultDto<StaticPage>> {
+    const { page = 1, limit = 9 } = filters;
+    const skip = (page - 1) * limit;
+    const query: Record<string, unknown> = {};
+    const [items, total] = await Promise.all([
+      this.staticPageModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.staticPageModel.countDocuments(query),
+    ]);
+    return new PaginationResultDto<StaticPage>(items, total, page, limit);
   }
 
   async findOne(slug: string): Promise<StaticPage> {

@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { StaticPageService } from './static-page.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -11,6 +21,7 @@ import { CreateStaticPageDto } from './dto/create-static-page.dto';
 import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { JwtUser } from '@/common/dto/response.dto';
+import { PaginationResultDto } from '@/common/dto/pagination.dto';
 
 @Controller('admin/cms')
 @UseGuards(JwtAuthGuard, AdminGuard)
@@ -53,10 +64,11 @@ export class CmsController {
   }
 
   @Get('pages')
-  findAllPages(): Promise<StaticPage[]> {
-    return this.staticPageService.findAll();
+  findAllPages(
+    @Query() filters: { page?: number; limit?: number; isPublishes?: boolean },
+  ): Promise<PaginationResultDto<StaticPage>> {
+    return this.staticPageService.findAll(filters);
   }
-
   @Get('pages/:slug')
   findOnePage(@Param('slug') slug: string): Promise<StaticPage> {
     return this.staticPageService.findOne(slug);
