@@ -93,6 +93,37 @@ export class Equipment extends Document {
   })
   documents: { name: string; url: string }[];
 
+  // ======================
+  // NESTED SECTIONS (MATCH DTO)
+  // ======================
+
+  @Prop({ type: Object })
+  basicDetails?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  general?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  conditionOverview?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  engineCondition?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  hydraulics?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  cabElectronics?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  checkList?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  media?: Record<string, unknown>;
+
+  @Prop({ type: Object })
+  additionalInformation?: Record<string, unknown>;
+
   // Approval Workflow
   @Prop({ type: Types.ObjectId, ref: 'User' })
   approvedBy: Types.ObjectId;

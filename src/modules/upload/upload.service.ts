@@ -63,12 +63,37 @@ export class UploadService {
    */
   private validateFile(file: Express.Multer.File): void {
     const maxSize = 10 * 1024 * 1024; // 10MB
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+      // videos
+      'video/mp4',
+      'video/mpeg',
+      'video/quicktime',
+      'video/x-msvideo', // avi
+
+      // documents
+      'application/pdf',
+      'application/msword', // doc
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // docx
+      'application/vnd.ms-excel', // xls
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // xlsx
+    ];
+    const videoLimit = 100 * 1024 * 1024; // 100MB
+    const documentLimit = 20 * 1024 * 1024; // 20MB
 
     if (file.size > maxSize) {
       throw new BadRequestException(`File size exceeds 10MB limit`);
     }
-
+    if (file.mimetype.startsWith('video/') && file.size > videoLimit) {
+      throw new BadRequestException('Video exceeds 100MB');
+    }
+    if (file.mimetype.startsWith('application/') && file.size > documentLimit) {
+      throw new BadRequestException('Document exceeds 20MB');
+    }
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException(
         `Invalid file type. Allowed types: ${allowedMimeTypes.join(', ')}`,

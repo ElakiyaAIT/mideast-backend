@@ -5,6 +5,7 @@ import { RoleModule } from '../../modules/role/role.module';
 import { UserModule } from '../../modules/user/user.module';
 import { RoleSeeder } from './role.seeder';
 import { AdminUserSeeder } from './admin-user.seeder';
+import { SellerUserSeeder } from './seller-user.seedeer';
 
 /**
  * Seeder Module
@@ -13,7 +14,7 @@ import { AdminUserSeeder } from './admin-user.seeder';
  */
 @Module({
   imports: [ConfigModule, DatabaseModule, RoleModule, UserModule],
-  providers: [RoleSeeder, AdminUserSeeder],
-  exports: [RoleSeeder, AdminUserSeeder],
+  providers: [RoleSeeder, AdminUserSeeder, SellerUserSeeder],
+  exports: [RoleSeeder, AdminUserSeeder, SellerUserSeeder],
 })
 export class SeederModule {}

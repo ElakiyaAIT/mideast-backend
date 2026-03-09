@@ -1,10 +1,11 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { EquipmentService } from './equipment.service';
-import { FilterEquipmentDto } from './dto';
+import { CreateEquipmentDto, FilterEquipmentDto } from './dto';
 import { Equipment } from './schemas/equipment.schema';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
 import { Public } from '@/common/decorators/public.decorator';
 import { EquipmentStatus } from './enums';
+import { JwtAuthGuard } from '@/common/guards/jwt-auth.guard';
 
 @Controller('equipment')
 @Public()
@@ -66,5 +67,11 @@ export class PublicEquipmentController {
     const limitNumber = parseInt(limit, 10);
 
     return this.equipmentService.getRelatedByCategory(id, pageNumber, limitNumber);
+  }
+
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createDto: CreateEquipmentDto): Promise<Equipment> {
+    return this.equipmentService.create(createDto);
   }
 }

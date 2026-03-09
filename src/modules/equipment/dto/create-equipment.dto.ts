@@ -13,6 +13,22 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ListingType } from '../enums';
+import {
+  BasicDetailsDto,
+  GeneralDto,
+  ConditionDto,
+  EngineConditionDto,
+  HydraulicsDto,
+  CabElectronicsDto,
+  EngineDto,
+  ExteriorDto,
+  FunctionalTestDto,
+  HydraulicsChecklistDto,
+  UnderCarriageDto,
+  MediaDto,
+  EquipmentIdentityDto,
+  OwnershipDto,
+} from './seller-equipment-form.dto';
 
 class LocationDto {
   @IsOptional()
@@ -45,6 +61,49 @@ class LocationDto {
     lat: number;
     lng: number;
   };
+}
+
+export class CheckListDto {
+  @ValidateNested()
+  @Type(() => ExteriorDto)
+  @IsOptional()
+  exterior?: ExteriorDto;
+
+  @ValidateNested()
+  @Type(() => EngineDto)
+  @IsOptional()
+  engine?: EngineDto;
+
+  @ValidateNested()
+  @Type(() => HydraulicsChecklistDto)
+  @IsOptional()
+  hydraulics?: HydraulicsChecklistDto;
+
+  @ValidateNested()
+  @Type(() => UnderCarriageDto)
+  @IsOptional()
+  underCarriage?: UnderCarriageDto;
+
+  @ValidateNested()
+  @Type(() => FunctionalTestDto)
+  @IsOptional()
+  functionalTest?: FunctionalTestDto;
+}
+export class AdditionalInformationDto {
+  @ValidateNested()
+  @Type(() => EquipmentIdentityDto)
+  @IsOptional()
+  equipmentIdentity?: EquipmentIdentityDto;
+
+  @ValidateNested()
+  @Type(() => LocationDto)
+  @IsOptional()
+  location?: LocationDto;
+
+  @ValidateNested()
+  @Type(() => OwnershipDto)
+  @IsOptional()
+  ownership?: OwnershipDto;
 }
 
 export class CreateEquipmentDto {
@@ -127,4 +186,49 @@ export class CreateEquipmentDto {
   @IsArray()
   @IsOptional()
   documents?: { name: string; url: string }[];
+
+  @ValidateNested()
+  @Type(() => BasicDetailsDto)
+  @IsOptional()
+  basicDetails?: BasicDetailsDto;
+
+  @ValidateNested()
+  @Type(() => GeneralDto)
+  @IsOptional()
+  general?: GeneralDto;
+
+  @ValidateNested()
+  @Type(() => ConditionDto)
+  @IsOptional()
+  conditionOverview?: ConditionDto;
+
+  @ValidateNested()
+  @Type(() => EngineConditionDto)
+  @IsOptional()
+  engineCondition?: EngineConditionDto;
+
+  @ValidateNested()
+  @Type(() => HydraulicsDto)
+  @IsOptional()
+  hydraulics?: HydraulicsDto;
+
+  @ValidateNested()
+  @Type(() => CabElectronicsDto)
+  @IsOptional()
+  cabElectronics?: CabElectronicsDto;
+
+  @ValidateNested()
+  @Type(() => CheckListDto)
+  @IsOptional()
+  checkList?: CheckListDto;
+
+  @ValidateNested()
+  @Type(() => MediaDto)
+  @IsOptional()
+  media?: MediaDto;
+
+  @ValidateNested()
+  @Type(() => AdditionalInformationDto)
+  @IsOptional()
+  additionalInformation?: AdditionalInformationDto;
 }

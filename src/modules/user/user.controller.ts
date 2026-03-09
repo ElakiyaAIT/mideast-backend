@@ -19,16 +19,18 @@ import { AdminGuard } from '../../common/guards/admin.guard';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
 
 @Controller('users')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @UseGuards(AdminGuard)
   create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.userService.create(createUserDto);
   }
 
   @Get()
+  @UseGuards(AdminGuard)
   findAll(@Query() queryDto: UserListQueryDto): Promise<PaginationResultDto<UserResponseDto>> {
     return this.userService.findAll(queryDto);
   }
@@ -44,6 +46,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string): Promise<void> {
     return this.userService.remove(id);
   }
