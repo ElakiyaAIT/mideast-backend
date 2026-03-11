@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { StaticPageService } from './static-page.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
@@ -22,9 +21,12 @@ import { UpdateStaticPageDto } from './dto/update-static-page.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { JwtUser } from '@/common/dto/response.dto';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('admin/cms')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class CmsController {
   constructor(
     private readonly bannerService: BannerService,

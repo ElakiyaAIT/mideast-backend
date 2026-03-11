@@ -11,13 +11,15 @@ import {
 } from '@nestjs/common';
 import { EquipmentCategoryService } from './equipment-category.service';
 import { CreateEquipmentCategoryDto, UpdateEquipmentCategoryDto } from './dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
 import { EquipmentCategory } from './schemas/equipment-category.schema';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('admin/equipment-categories')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class EquipmentCategoryController {
   constructor(private readonly categoryService: EquipmentCategoryService) {}
 

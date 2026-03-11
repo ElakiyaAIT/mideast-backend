@@ -10,13 +10,17 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
 // import { AdminGuard } from '../../common/guards/admin.guard';
 
 @Controller('admin/upload')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
   @Post('equipment-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 images
   async uploadEquipmentImages(
@@ -33,6 +37,8 @@ export class UploadController {
   }
 
   //IMAGE UPLOAD IN EQUIPMENT_CATEGORY
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
   @Post('equipment-category-images')
   @UseInterceptors(FilesInterceptor('images', 5)) // Max 5 category images
   async uploadEquipmentCategoryImages(
@@ -50,6 +56,8 @@ export class UploadController {
   }
 
   //IMAGE UPLOAD IN AUCTION
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
   @Post('auction-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadAuctionImages(
@@ -67,6 +75,8 @@ export class UploadController {
   }
 
   //TESTIMONIAL IMAGE UPLOAD
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
   @Post('testimonial-image')
   @UseInterceptors(FileInterceptor('image'))
   async uploadTestimonialImage(
@@ -81,6 +91,8 @@ export class UploadController {
     return { url: uploadedFile.url };
   }
 
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
   @Post('banner-image')
   @UseInterceptors(FileInterceptor('image'))
   async UploadBannerImage(@UploadedFile() file: Express.Multer.File): Promise<{ url: string }> {
@@ -97,6 +109,7 @@ export class UploadController {
   //CONDITION
   //Exterior
 
+  @UseGuards(JwtAuthGuard)
   @Post('exterior-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadExteriorImages(
@@ -113,6 +126,7 @@ export class UploadController {
     return { urls };
   }
   //Engine
+  @UseGuards(JwtAuthGuard)
   @Post('engine-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadEngineImages(
@@ -129,6 +143,7 @@ export class UploadController {
     return { urls };
   }
   //Hydraulics
+  @UseGuards(JwtAuthGuard)
   @Post('hydraulics-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadHydraulicsImages(
@@ -145,6 +160,7 @@ export class UploadController {
     return { urls };
   }
   //undercarriage
+  @UseGuards(JwtAuthGuard)
   @Post('underCarriage-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadUndercarriageImages(
@@ -161,6 +177,7 @@ export class UploadController {
     return { urls };
   }
   //FunctionalTest
+  @UseGuards(JwtAuthGuard)
   @Post('functional-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadfunctionalImages(
@@ -177,6 +194,7 @@ export class UploadController {
     return { urls };
   }
   //Media
+  @UseGuards(JwtAuthGuard)
   @Post('exteriorMedia-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadExteriorMediaImages(
@@ -193,6 +211,7 @@ export class UploadController {
     return { urls };
   }
   //Engine Compartment
+  @UseGuards(JwtAuthGuard)
   @Post('engineMedia-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadEngineMediaImages(
@@ -209,6 +228,7 @@ export class UploadController {
     return { urls };
   }
   //underCarriage
+  @UseGuards(JwtAuthGuard)
   @Post('underCarriageMedia-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadUndercarriageMediaImages(
@@ -225,6 +245,7 @@ export class UploadController {
     return { urls };
   }
   //cab interior
+  @UseGuards(JwtAuthGuard)
   @Post('cabInteriorMedia-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadCabInteriorMediaImages(
@@ -241,6 +262,7 @@ export class UploadController {
     return { urls };
   }
   //other attachments
+  @UseGuards(JwtAuthGuard)
   @Post('otherMedia-images')
   @UseInterceptors(FilesInterceptor('images', 10)) // Max 10 auction images
   async uploadOtherMediaImages(
@@ -257,6 +279,7 @@ export class UploadController {
     return { urls };
   }
   //videos
+  @UseGuards(JwtAuthGuard)
   @Post('videos')
   @UseInterceptors(
     FilesInterceptor('videos', 10, {
@@ -278,6 +301,7 @@ export class UploadController {
   }
   //Documents
   //Ownership
+  @UseGuards(JwtAuthGuard)
   @Post('ownership-docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {
@@ -300,6 +324,7 @@ export class UploadController {
     return { urls };
   }
   //Invoice/Bill of sale
+  @UseGuards(JwtAuthGuard)
   @Post('invoice-docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {
@@ -322,6 +347,7 @@ export class UploadController {
     return { urls };
   }
   //Registration
+  @UseGuards(JwtAuthGuard)
   @Post('registration-docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {
@@ -344,6 +370,7 @@ export class UploadController {
     return { urls };
   }
   //EmissionTest
+  @UseGuards(JwtAuthGuard)
   @Post('emissionTest-Docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {
@@ -366,6 +393,7 @@ export class UploadController {
     return { urls };
   }
   //Insurance
+  @UseGuards(JwtAuthGuard)
   @Post('insurance-docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {
@@ -388,6 +416,7 @@ export class UploadController {
     return { urls };
   }
   //Insurance
+  @UseGuards(JwtAuthGuard)
   @Post('maintenance-docs')
   @UseInterceptors(
     FilesInterceptor('documents', 10, {

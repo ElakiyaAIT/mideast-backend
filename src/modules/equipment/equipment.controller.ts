@@ -18,15 +18,17 @@ import {
   FilterEquipmentDto,
   BulkApproveDto,
 } from './dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import type { JwtUser } from '@/common/dto/response.dto';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import { Equipment } from './schemas/equipment.schema';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('admin/equipment')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class EquipmentController {
   constructor(private readonly equipmentService: EquipmentService) {}
 

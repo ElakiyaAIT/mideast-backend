@@ -3,6 +3,7 @@ import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
 import { Observable } from 'rxjs';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { IS_ADMIN_ROUTE_KEY } from '../decorators/admin-route.decorator';
 
 @Injectable()
 export class PublicGuard extends AuthGuard('jwt') {
@@ -19,6 +20,14 @@ export class PublicGuard extends AuthGuard('jwt') {
     if (isPublic) {
       return true;
     }
+
+    // Skip jwt validation for admin routes — AdminJwtAuthGuard handles those
+    const isAdminRoute = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_ROUTE_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isAdminRoute) return true;
 
     return super.canActivate(context);
   }

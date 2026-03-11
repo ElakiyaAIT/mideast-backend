@@ -21,8 +21,10 @@ interface AuditRequest {
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {
   private readonly skipRoutes = [
+    '/auth/admin-refresh',
     '/auth/login',
     '/auth/admin-login',
+    '/auth/admin-logout',
     '/auth/register',
     '/auth/refresh',
     '/auth/logout',
@@ -154,7 +156,7 @@ export class AuditInterceptor implements NestInterceptor {
                     const newValue = changes[key].new;
 
                     // Special case for image
-                    if (key === 'image' || key === 'images') {
+                    if (key === 'image' || key === 'images' || key === 'imageUrl') {
                       if (oldValue && !newValue) return 'image removed';
                       if (!oldValue && newValue) return 'image added';
                       return 'image updated';

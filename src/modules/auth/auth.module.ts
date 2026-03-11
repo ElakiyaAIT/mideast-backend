@@ -12,6 +12,8 @@ import { RoleModule } from '../role/role.module';
 import { EmailModule } from '../email/email.module';
 import { EMAIL_QUEUE } from '../email/constants/email.constants';
 import { BullModule } from '@nestjs/bullmq';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminJwtStrategy } from './strategies/admin.jwt.strategy';
 
 @Module({
   imports: [
@@ -36,7 +38,14 @@ import { BullModule } from '@nestjs/bullmq';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, TokenService, FirebaseService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    TokenService,
+    FirebaseService,
+    AdminJwtAuthGuard,
+    AdminJwtStrategy,
+  ],
   exports: [AuthService, TokenService, FirebaseService],
 })
 export class AuthModule {}

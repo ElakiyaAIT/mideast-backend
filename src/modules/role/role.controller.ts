@@ -1,12 +1,14 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { RoleResponseDto } from './dto/role-response.dto';
 import { RoleName } from './enums/role-name.enum';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('roles')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 

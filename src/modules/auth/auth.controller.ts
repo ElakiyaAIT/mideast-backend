@@ -13,6 +13,9 @@ import { Public } from '../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AuthResponseDto, QueueStatsDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../user/dto/user-response.dto';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminGuard } from '@/common/guards/admin.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -55,10 +58,21 @@ export class AuthController {
     accessToken: string;
   }> {
     // Prefer cookie over body for refresh token (more secure)
+    // Reads web cookie 'refreshToken'
     const token = req.cookies?.refreshToken || refreshTokenDto.refreshToken;
     return this.authService.refreshToken({ refreshToken: token }, res);
   }
-
+  @Public()
+  @Post('admin-refresh')
+  adminRefresh(
+    @Body() refreshTokenDto: RefreshTokenDto,
+    @Request() req: { cookies?: { adminRefreshToken?: string } }, // <-- reads admin cookie
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ accessToken: string }> {
+    // Reads admin cookie 'adminRefreshToken'
+    const token = req.cookies?.adminRefreshToken || refreshTokenDto.refreshToken;
+    return this.authService.refreshToken({ refreshToken: token }, res, true); // <-- isAdmin=true
+  }
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(
@@ -70,13 +84,37 @@ export class AuthController {
     return this.authService.logout(req.user.id, res);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard, AdminGuard)
+  @Post('admin-logout')
+  adminLogout(
+    @Request() req: { user: { id: string } },
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ message: string }> {
+    return this.authService.logout(req.user.id, res, true); // isAdmin = true
+  }
+  @UseGuards(JwtAuthGuard) // web profile — reads 'accessToken' cookie
   @Get('profile')
   getProfile(@Request() req: { user: { id: string } }): Promise<UserResponseDto> {
-    console.log(this.authService.getProfile(req.user.id), 'reeeee-----------');
     return this.authService.getProfile(req.user.id);
   }
 
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard) // admin profile — reads 'adminAccessToken' cookie
+  @Get('admin-profile')
+  getAdminProfile(@Request() req: { user: { id: string } }): Promise<UserResponseDto> {
+    return this.authService.getProfile(req.user.id);
+  }
+
+  @AdminRoute()
+  @UseGuards(AdminJwtAuthGuard)
+  @Patch('admin-profile')
+  updateAdminProfile(
+    @Request() req: { user: { id: string } },
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<UserResponseDto> {
+    return this.authService.updateProfile(req.user.id, updateProfileDto);
+  }
   @UseGuards(JwtAuthGuard)
   @Patch('profile')
   updateProfile(

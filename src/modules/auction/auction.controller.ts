@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuctionService } from './auction.service';
 import { CreateAuctionDto, UpdateAuctionDto, AssignEquipmentDto, FilterAuctionDto } from './dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { JwtUser } from '@/common/dto/response.dto';
@@ -19,9 +18,12 @@ import { PaginationResultDto } from '@/common/dto/pagination.dto';
 import { Auction } from './schemas/auction.schema';
 import { Equipment } from '../equipment/schemas/equipment.schema';
 import { Bid } from './schemas/bid.schema';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('admin/auctions')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class AuctionController {
   constructor(private readonly auctionService: AuctionService) {}
 

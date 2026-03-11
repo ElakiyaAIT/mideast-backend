@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
 import { NotificationService } from './notification.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AdminGuard } from '../../common/guards/admin.guard';
 import { CurrentUser } from '@/common/decorators/current-user.decorator';
 import type { JwtUser } from '@/common/dto/response.dto';
@@ -8,9 +7,12 @@ import { NotificationType } from './enums/notification-type.enum';
 import { Notification } from './schemas/notification.schema';
 import { NotificationStatus } from './enums/notification-status.enum';
 import { PaginationResultDto } from '@/common/dto/pagination.dto';
+import { AdminJwtAuthGuard } from '@/common/guards/admin-jwt.guard';
+import { AdminRoute } from '@/common/decorators/admin-route.decorator';
 
 @Controller('admin/notifications')
-@UseGuards(JwtAuthGuard, AdminGuard)
+@AdminRoute()
+@UseGuards(AdminJwtAuthGuard, AdminGuard)
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
 

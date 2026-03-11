@@ -190,6 +190,7 @@ export class AuthService implements OnModuleInit {
         role.name,
         user.roleId as unknown as { _id: string; name: string },
         res,
+        true,
       );
     } catch (error) {
       return ErrorHandlerUtil.handleError(error, 'AuthService.login', 'Failed to login user');
@@ -202,11 +203,13 @@ export class AuthService implements OnModuleInit {
   async refreshToken(
     refreshTokenDto: RefreshTokenDto,
     res: Response,
+    isAdmin = false,
   ): Promise<{ accessToken: string }> {
     try {
       if (!refreshTokenDto.refreshToken) {
         throw new UnauthorizedException('Refresh token is required');
       }
+      console.log(isAdmin, 'isAdmin');
 
       // Verify the refresh token
       const payload = this.tokenService.verifyRefreshToken(refreshTokenDto.refreshToken);
@@ -236,7 +239,7 @@ export class AuthService implements OnModuleInit {
       await this.userService.updateRefreshToken(user._id.toString(), rotationResult.refreshToken);
 
       // Set new cookies
-      this.setTokenCookies(rotationResult.accessToken, rotationResult.refreshToken, res);
+      this.setTokenCookies(rotationResult.accessToken, rotationResult.refreshToken, res, isAdmin);
 
       return { accessToken: rotationResult.accessToken };
     } catch (error) {
@@ -254,10 +257,10 @@ export class AuthService implements OnModuleInit {
   /**
    * Logout user - clear tokens
    */
-  async logout(userId: string, res: Response): Promise<{ message: string }> {
+  async logout(userId: string, res: Response, isAdmin = false): Promise<{ message: string }> {
     try {
       await this.userService.updateRefreshToken(userId, null);
-      this.clearTokenCookies(res);
+      this.clearTokenCookies(res, isAdmin);
       return { message: 'Logged out successfully' };
     } catch (error) {
       ErrorHandlerUtil.handleError(error, 'AuthService.logout', 'Failed to logout user');
@@ -484,6 +487,7 @@ export class AuthService implements OnModuleInit {
     roleName: RoleName | undefined,
     roleId: { _id: string; name: string },
     res: Response,
+    isAdmin = false,
   ): Promise<AuthResponseDto> {
     const payload: JwtPayload = {
       sub: userId,
@@ -497,7 +501,7 @@ export class AuthService implements OnModuleInit {
     await this.userService.updateRefreshToken(userId, refreshToken);
 
     // Set cookies
-    this.setTokenCookies(accessToken, refreshToken, res);
+    this.setTokenCookies(accessToken, refreshToken, res, isAdmin);
 
     // Get user for response
     const user = await this.userService.findOne(userId);
@@ -519,13 +523,21 @@ export class AuthService implements OnModuleInit {
   /**
    * Set access and refresh token cookies
    */
-  private setTokenCookies(accessToken: string, refreshToken: string, res: Response): void {
+  private setTokenCookies(
+    accessToken: string,
+    refreshToken: string,
+    res: Response,
+    isAdmin = false,
+  ): void {
     const securityConfig = this.configService.getSecurityConfig();
     const accessTokenCookieConfig = securityConfig.cookies.accessToken;
     const refreshTokenCookieConfig = securityConfig.cookies.refreshToken;
+    // Admin uses different cookie names so they never collide with web cookies
 
+    const accessCookieName = isAdmin ? 'adminAccessToken' : 'accessToken';
+    const refreshCookieName = isAdmin ? 'adminRefreshToken' : 'refreshToken';
     // Set access token cookie
-    res.cookie('accessToken', accessToken, {
+    res.cookie(accessCookieName, accessToken, {
       httpOnly: accessTokenCookieConfig.httpOnly,
       secure: accessTokenCookieConfig.secure,
       sameSite: accessTokenCookieConfig.sameSite,
@@ -535,7 +547,7 @@ export class AuthService implements OnModuleInit {
     });
 
     // Set refresh token cookie
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie(refreshCookieName, refreshToken, {
       httpOnly: refreshTokenCookieConfig.httpOnly,
       secure: refreshTokenCookieConfig.secure,
       sameSite: refreshTokenCookieConfig.sameSite,
@@ -548,9 +560,14 @@ export class AuthService implements OnModuleInit {
   /**
    * Clear token cookies
    */
-  private clearTokenCookies(res: Response): void {
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/' });
+  private clearTokenCookies(res: Response, isAdmin = false): void {
+    if (isAdmin) {
+      res.clearCookie('adminAccessToken', { path: '/' });
+      res.clearCookie('adminRefreshToken', { path: '/' });
+    } else {
+      res.clearCookie('accessToken', { path: '/' });
+      res.clearCookie('refreshToken', { path: '/' });
+    }
   }
 
   /**

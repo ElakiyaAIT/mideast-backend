@@ -234,6 +234,7 @@ export class EquipmentService {
       page: 1,
       limit: 3,
       isPublished: true,
+      status: EquipmentStatus.APPROVED,
       sortBy: 'createdAt',
       order: 'desc',
     });
@@ -251,7 +252,7 @@ export class EquipmentService {
     const categoryId = equipment.categoryId?._id || equipment.categoryId;
 
     const query: Record<string, unknown> = {
-      categoryId: categoryId.toString(), // use the raw ObjectId
+      categoryId: categoryId.toString(),
       _id: { $ne: new Types.ObjectId(id) }, // ensure proper ObjectId comparison, remove current equipment
       isDeleted: false,
       isPublished: true,
